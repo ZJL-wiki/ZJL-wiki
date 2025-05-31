@@ -71,22 +71,22 @@
 
 + ***ZJL于络谷见人以作图辱之为乐，忿而斥曰：“汝嬉原神乎？汝等皆为嬉原神之所致，悔乎尔！”***
 
-![新·末日三问](/docs/literature/images/新末日三问.png)
+![新·末日三问](./images/新末日三问.png)
 
 + ***ZJL遇鲰人毁谤，答曰：“吾食黎朦”。黎朦者，金黄之实也。盖以之喻其身位之贵、非黎朦之属不食。***
 
-![“我吃柠檬”](/docs/literature/images/我吃柠檬.png)
+![“我吃柠檬”](./images/我吃柠檬.png)
 
 + ***又曰：“君岂欲保送北大乎？君岂欲乎持傩备儿之赏乎？”盖勉其树功名、就大业也。鲰人闻之，惭不能答。***
 
-![“你是不是要被保送北大了”](/docs/literature/images/你是不是要保送北大了.png)
+![“你是不是要被保送北大了”](./images/你是不是要保送北大了.png)
 
-![“你是不是要拿诺贝尔奖了”](/docs/literature/images/你是不是要拿诺贝尔奖了.png)
+![“你是不是要拿诺贝尔奖了”](./images/你是不是要拿诺贝尔奖了.png)
 
 + ***ZJL得厚望于世。时人常曰：“汝言然之，而吾以为不若ZJL”，盖表其寅畏之心。***
 
-![你说得对，但感觉不如ZJL.gif](/docs/literature/images/你说得对但感觉不如thomas_zjl.jpg)
+![你说得对，但感觉不如ZJL.gif](./images/你说得对但感觉不如thomas_zjl.jpg)
 
 + ***或问ZJL为人，ZJL答曰：“吾乃慈、孝、贵。”***
 
-![“吾乃慈孝贵”](/docs/literature/images/ZJL的雌小鬼宣言.jpg)
+![“吾乃慈孝贵”](./images/ZJL的雌小鬼宣言.jpg)
