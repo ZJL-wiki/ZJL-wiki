@@ -44,6 +44,6 @@
 
 ![](./images/怎么JCb站.jpg)
 
-![](./images/现在的人真唐啊.jpg)
+![](./images/现在的人是真唐啊.jpg)
 
 ![](./images/上课JC.jpg)
