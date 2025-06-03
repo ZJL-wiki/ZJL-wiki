@@ -21,3 +21,13 @@
 #### 神锐评 CSP-2024 (2024/10/31)
 
 ![ZJL锐评CSP2024](./images/ZJL锐评CSP2024.webp)
+
+#### You AK IOI
+
+![UAKIOI](./images/UAKIOI.jpg)
+
+![UAKIOI * 3](./images/UAKIOIx3.jpg)
+
+![UAKIOI 加强版](./images/BIG_UAKIOI.jpg)
+
+![长难句](./images/UAKIOI-长难句.jpg)
