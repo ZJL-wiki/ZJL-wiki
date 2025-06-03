@@ -20,6 +20,7 @@ nav:
       - F.A.Q: intro/faq.md
   - 文学:
       - 世说 ZJL: literature/shishuozjl.md
+      - ZJL 语录: literature/ZJL-quotations.md
 
 extra_javascript:
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
