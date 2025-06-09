@@ -39,7 +39,7 @@ hooks:
 plugins:
   - search
   - meta
-  # - git-authors
+  - git-authors
   # - git-revision-date-localizxed:
   #     enable_creation_date: !ENV [CI, false]
 
@@ -81,7 +81,7 @@ theme:
     - navigation.tracking
     - navigation.tabs
     - navigation.tabs.sticky
-    - navigation.sections
+    # - navigation.sections
     - navigation.path
     - navigation.prune
     - navigation.top
