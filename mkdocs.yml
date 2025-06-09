@@ -39,7 +39,7 @@ hooks:
 plugins:
   - search
   - meta
-  - git-authors
+  # - git-authors
   # - git-revision-date-localizxed:
   #     enable_creation_date: !ENV [CI, false]
 
