@@ -21,7 +21,8 @@ nav:
   - 文学:
       - 世说 ZJL: literature/shishuozjl.md
       - ZJL 语录: literature/ZJL-quotations.md
-      - ZJL 福音书: literature/ZJL-gospels/intro.md
+      - ZJL 福音书: 
+        - 简介: literature/ZJL-gospels/intro.md
         - 第四章: literature/ZJL-gospels/ch4.md
         - 第五章: literature/ZJL-gospels/ch5.md
         - 第八章: literature/ZJL-gospels/ch8.md
