@@ -12,21 +12,21 @@ copyright: Copyright &copy; 2025 ZJL Wiki Team
 # Contents
 nav:
   - 简介:
-      - Getting Started: index.md
-      - 关于本项目: intro/about.md
-      - ZJL Wiki 不是什么: intro/what-zjl-wiki-is-not.md
-      - 如何参与: intro/htc.md
-      - 格式手册: intro/format.md
-      - F.A.Q: intro/faq.md
+    - Getting Started: index.md
+    - 关于本项目: intro/about.md
+    - ZJL Wiki 不是什么: intro/what-zjl-wiki-is-not.md
+    - 如何参与: intro/htc.md
+    - 格式手册: intro/format.md
+    - F.A.Q: intro/faq.md
   - 文学:
-      - 世说 ZJL: literature/shishuozjl.md
-      - ZJL 语录: literature/ZJL-quotations.md
-      - ZJL 福音书: 
-        - 简介: literature/ZJL-gospels/intro.md
-        - 第四章: literature/ZJL-gospels/ch4.md
-        - 第五章: literature/ZJL-gospels/ch5.md
-        - 第八章: literature/ZJL-gospels/ch8.md
-        - 第十三章: literature/ZJL-gospels/ch13.md
+    - 世说 ZJL: literature/shishuozjl.md
+    - ZJL 语录: literature/ZJL-quotations.md
+    - ZJL 福音书: 
+      - 简介: literature/ZJL-gospels/intro.md
+      - 第四章: literature/ZJL-gospels/ch4.md
+      - 第五章: literature/ZJL-gospels/ch5.md
+      - 第八章: literature/ZJL-gospels/ch8.md
+      - 第十三章: literature/ZJL-gospels/ch13.md
 
 extra_javascript:
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
