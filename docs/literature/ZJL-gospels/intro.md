@@ -1,5 +1,3 @@
-## 简介
-
 > ***「 Zenith's Judgements Led All the Keyboards Incapable Of Inaccessable. 」***
 > 
 > <p align="right"><i>———「ZJL AK IOI」，据传为 ZJL 神教核心教义</i></p>
