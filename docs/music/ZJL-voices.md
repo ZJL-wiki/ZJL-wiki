@@ -1,5 +1,3 @@
-## ZJL 狱！音！放！送！
-
 - 「原神怎么你了」
 
     <audio controls src="../voices/原神怎么你了.m4a"></audio>
