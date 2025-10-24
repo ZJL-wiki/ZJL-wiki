@@ -19,15 +19,16 @@ nav:
     - 格式手册: intro/format.md
     - F.A.Q: intro/faq.md
   - 文学:
-    - 世说 ZJL: literature/shishuozjl.md
+    - 《世说 ZJL》: literature/shishuozjl.md
     - ZJL 语录: literature/ZJL-quotations.md
-    - ZJL 福音书: 
+    - 《ZJL 福音书》: 
       - 简介: literature/ZJL-gospels/intro.md
       - 第四章: literature/ZJL-gospels/ch4.md
       - 第五章: literature/ZJL-gospels/ch5.md
       - 第八章: literature/ZJL-gospels/ch8.md
       - 第十三章: literature/ZJL-gospels/ch13.md
-    - 笺笺 ZJL: literature/jjzjl.md
+    - 《笺笺 ZJL》: literature/jjzjl.md
+    - 《黑炭公猪》: literature/coal-princess.md
   - 绘画:
     - 《百钧图》: painting/Hundred_ZJLs.md
   - 音乐:
