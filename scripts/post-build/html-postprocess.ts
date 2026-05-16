@@ -21,7 +21,9 @@ const __dirname = path.dirname(__filename);
 export let workerId: number;
 
 export function log(message: string) {
-  console.log(`${chalk.green(workerId == null ? "[Main]" : `[Worker ${workerId}]`)} ${message}`);
+  console.log(
+    `${chalk.green(workerId == null ? "[Main]" : `[Worker ${workerId}]`)} ${message}`,
+  );
 }
 
 /**
@@ -35,7 +37,10 @@ export function log(message: string) {
  */
 export interface TaskHandler<GlobalInitializationResult = unknown> {
   globalInitialize?(siteDir: string): Promise<GlobalInitializationResult>;
-  initialize?(globalInitializationResult: GlobalInitializationResult, siteDir: string): Promise<void>;
+  initialize?(
+    globalInitializationResult: GlobalInitializationResult,
+    siteDir: string,
+  ): Promise<void>;
   process(document: HTMLElement, filePath: string): Promise<void>;
   finalize?(): Promise<void>;
 }
@@ -43,18 +48,23 @@ export interface TaskHandler<GlobalInitializationResult = unknown> {
 /**
  * Load task handlers from corresponding directories with dynamic import.
  */
-async function loadTaskHandlers(tasks: string[], onLoaded?: (taskHandler: TaskHandler, i: number) => Promise<void>) {
+async function loadTaskHandlers(
+  tasks: string[],
+  onLoaded?: (taskHandler: TaskHandler, i: number) => Promise<void>,
+) {
   return await Promise.all(
     tasks.map(async (task, i) => {
       const taskHandlerFile = path.join(__dirname, task, "task-handler.ts");
       const taskHandlerUrl = url.pathToFileURL(taskHandlerFile).href;
-      const taskHandler: TaskHandler & { name: string } = (await import(taskHandlerUrl)).taskHandler;
+      const taskHandler: TaskHandler & { name: string } = (
+        await import(taskHandlerUrl)
+      ).taskHandler;
       taskHandler.name = task;
       if (onLoaded) {
         await onLoaded(taskHandler, i);
       }
       return taskHandler;
-    })
+    }),
   );
 }
 
@@ -99,12 +109,16 @@ function communicate<
   MessageToPost extends WorkerMessage | WorkerResponseMessage,
   MessageToWait extends WorkerMessage | WorkerResponseMessage,
   TypeToPost extends MessageToPost["type"],
-  TypeToWait extends MessageToWait["type"]
->(to: Worker | MessagePort, messageToPost: MessageToPost | TypeToPost, messageToWait: TypeToWait) {
+  TypeToWait extends MessageToWait["type"],
+>(
+  to: Worker | MessagePort,
+  messageToPost: MessageToPost | TypeToPost,
+  messageToWait: TypeToWait,
+) {
   type ResponseType = MessageToWait & { type: TypeToWait };
   const readyPromise =
     messageToWait &&
-    new Promise<ResponseType>(resolve => {
+    new Promise<ResponseType>((resolve) => {
       function onMessage(message: MessageToWait) {
         if (message.type === messageToWait) {
           to.off("message", onMessage);
@@ -114,14 +128,21 @@ function communicate<
       to.on("message", onMessage);
     });
 
-  if (messageToPost) to.postMessage(typeof messageToPost === "string" ? { type: messageToPost } : messageToPost);
+  if (messageToPost)
+    to.postMessage(
+      typeof messageToPost === "string"
+        ? { type: messageToPost }
+        : messageToPost,
+    );
   return readyPromise;
 }
 
 /**
  * Measure the execution time of a sync or async operation.
  */
-function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<number> : number {
+function measureTime<T>(
+  operation: () => T,
+): T extends Promise<any> ? Promise<number> : number {
   const startTime = +new Date();
   const end = () => +new Date() - startTime;
 
@@ -134,7 +155,7 @@ function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<nu
 (async () => {
   if (isMainThread) {
     const tasks = process.argv.slice(2);
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       if (!TASKS.includes(task)) {
         log(`No such task: ${task}`);
         process.exit(2);
@@ -148,24 +169,27 @@ function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<nu
         let globalInitializationResult: unknown;
         if (taskHandlers[i].globalInitialize) {
           const time = await measureTime(async () => {
-            globalInitializationResult = await taskHandlers[i].globalInitialize(siteDir);
+            globalInitializationResult =
+              await taskHandlers[i].globalInitialize(siteDir);
           });
-          log(`Global Initialization of task ${chalk.blueBright(task)} took ${chalk.cyanBright(`${time}ms`)}`);
+          log(
+            `Global Initialization of task ${chalk.blueBright(task)} took ${chalk.cyanBright(`${time}ms`)}`,
+          );
         }
         return {
           name: task,
-          globalInitializationResult
+          globalInitializationResult,
         };
-      })
+      }),
     );
 
     const workers: Worker[] = [];
     for (let i = 0; i < os.cpus().length; i++) {
       const worker = new Worker(__filename, {
-        execArgv: ["--loader", "ts-node/esm"]
+        execArgv: ["--loader", "ts-node/esm"],
       });
       for (const error of ["error", "messageerror"]) {
-        worker.on(error, error => {
+        worker.on(error, (error) => {
           log(`Error from worker: ${error.stack}`);
           process.exit(1);
         });
@@ -181,11 +205,11 @@ function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<nu
           {
             type: "initialize",
             workerId,
-            tasks: tasksWithGIR
+            tasks: tasksWithGIR,
           },
-          "ready"
-        )
-      )
+          "ready",
+        ),
+      ),
     );
 
     // A simple task queue for workers
@@ -204,9 +228,9 @@ function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<nu
             workers[i],
             {
               type: "file",
-              filePath
+              filePath,
             },
-            "ready"
+            "ready",
           );
           resolve();
         }
@@ -215,18 +239,21 @@ function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<nu
     };
     // Run on any available worker or enqueue if none
     const enqueueFile = (filePath: string) =>
-      new Promise<void>(resolve => {
+      new Promise<void>((resolve) => {
         fileQueue.push({ filePath, resolve });
 
         tryStartConsumingQueue();
       });
 
     // Wait for processing all files
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       const promises: Promise<void>[] = [];
       klaw(siteDir)
-        .on("data", item => {
-          if (item.stats.isFile() && item.path.toLowerCase().endsWith(".html")) {
+        .on("data", (item) => {
+          if (
+            item.stats.isFile() &&
+            item.path.toLowerCase().endsWith(".html")
+          ) {
             promises.push(enqueueFile(item.path));
           }
         })
@@ -234,15 +261,29 @@ function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<nu
     });
 
     // Intialize all workers
-    const finishedMessages = await Promise.all(workers.map(worker => communicate(worker, "finalize", "finished")));
-    const totalTimeByTask = Object.fromEntries(
-      tasks.map(task => [task, finishedMessages.reduce((s, message) => s + message.totalTimeByTask[task], 0)])
+    const finishedMessages = await Promise.all(
+      workers.map((worker) => communicate(worker, "finalize", "finished")),
     );
-    const totalTime = Object.entries(totalTimeByTask).reduce((s, [, time]) => s + time, 0);
+    const totalTimeByTask = Object.fromEntries(
+      tasks.map((task) => [
+        task,
+        finishedMessages.reduce(
+          (s, message) => s + message.totalTimeByTask[task],
+          0,
+        ),
+      ]),
+    );
+    const totalTime = Object.entries(totalTimeByTask).reduce(
+      (s, [, time]) => s + time,
+      0,
+    );
     log(
       `Took ${Object.entries(totalTimeByTask)
-        .map(([taskName, time]) => `${chalk.cyanBright(`${time}ms`)} on task ${chalk.blueBright(taskName)}`)
-        .join(", ")}, ${chalk.cyanBright(`${totalTime}ms`)} in total`
+        .map(
+          ([taskName, time]) =>
+            `${chalk.cyanBright(`${time}ms`)} on task ${chalk.blueBright(taskName)}`,
+        )
+        .join(", ")}, ${chalk.cyanBright(`${totalTime}ms`)} in total`,
     );
 
     process.exit(0);
@@ -251,25 +292,28 @@ function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<nu
     workerId = initializeMessage.workerId;
 
     const totalTimeByTask: Record<string, number> = Object.fromEntries(
-      initializeMessage.tasks.map(({ name }) => [name, 0])
+      initializeMessage.tasks.map(({ name }) => [name, 0]),
     );
 
     // Load and initialize task handlers
     const taskHandlers = await loadTaskHandlers(
-      initializeMessage.tasks.map(task => task.name),
+      initializeMessage.tasks.map((task) => task.name),
       async (taskHandler, i) => {
         if (taskHandler.initialize) {
           const time = await measureTime(() =>
-            taskHandler.initialize(initializeMessage.tasks[i].globalInitializationResult, siteDir)
+            taskHandler.initialize(
+              initializeMessage.tasks[i].globalInitializationResult,
+              siteDir,
+            ),
           );
           totalTimeByTask[initializeMessage.tasks[i].name] += time;
           log(
             `Initialization of task ${chalk.blueBright(initializeMessage.tasks[i].name)} took ${chalk.cyanBright(
-              `${time}ms`
-            )}`
+              `${time}ms`,
+            )}`,
           );
         }
-      }
+      },
     );
 
     // Now this worker is ready
@@ -280,12 +324,14 @@ function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<nu
       const html = parse(fileContent);
 
       for (const taskHandler of taskHandlers) {
-        const time = await measureTime(() => taskHandler.process(html, filePath));
+        const time = await measureTime(() =>
+          taskHandler.process(html, filePath),
+        );
         totalTimeByTask[taskHandler.name] += time;
         log(
           `${chalk.yellow(filePath)} took ${chalk.cyanBright(`${time}ms`)} on task ${chalk.blueBright(
-            taskHandler.name
-          )}`
+            taskHandler.name,
+          )}`,
         );
       }
 
@@ -299,20 +345,28 @@ function measureTime<T>(operation: () => T): T extends Promise<any> ? Promise<nu
         communicate(parentPort, "ready", null);
       } else if (message.type === "finalize") {
         await Promise.all(
-          taskHandlers.map(async taskHandler => {
+          taskHandlers.map(async (taskHandler) => {
             if (taskHandler.finalize) {
               const time = await measureTime(() => taskHandler.finalize());
               totalTimeByTask[taskHandler.name] += time;
-              log(`Finalization of task ${chalk.blueBright(taskHandler.name)} took ${chalk.cyanBright(`${time}ms`)}`);
+              log(
+                `Finalization of task ${chalk.blueBright(taskHandler.name)} took ${chalk.cyanBright(`${time}ms`)}`,
+              );
             }
-          })
+          }),
         );
 
-        const totalTime = Object.entries(totalTimeByTask).reduce((s, [, time]) => s + time, 0);
+        const totalTime = Object.entries(totalTimeByTask).reduce(
+          (s, [, time]) => s + time,
+          0,
+        );
         log(
           `Took ${Object.entries(totalTimeByTask)
-            .map(([taskName, time]) => `${chalk.cyanBright(`${time}ms`)} on task ${chalk.blueBright(taskName)}`)
-            .join(", ")}, ${chalk.cyanBright(`${totalTime}ms`)} in total`
+            .map(
+              ([taskName, time]) =>
+                `${chalk.cyanBright(`${time}ms`)} on task ${chalk.blueBright(taskName)}`,
+            )
+            .join(", ")}, ${chalk.cyanBright(`${totalTime}ms`)} in total`,
         );
         communicate(parentPort, { type: "finished", totalTimeByTask }, null);
       }

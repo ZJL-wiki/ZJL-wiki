@@ -6,7 +6,7 @@ const ROOT_URL = new URL("https://zjl-wiki.netlify.app/");
 
 export const taskHandler = new (class implements TaskHandler<void> {
   async process(document: HTMLElement) {
-    document.getElementsByTagName("a").forEach(element => {
+    document.getElementsByTagName("a").forEach((element) => {
       const href = element.getAttribute("href");
       if (new URL(href, ROOT_URL).origin !== ROOT_URL.origin) {
         if ((element.getAttribute("target") || "").trim() === "") {

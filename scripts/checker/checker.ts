@@ -29,14 +29,15 @@ if (parg.h) {
       "\t-r\tShow suggestions. Implies -s.\n" +
       "\t-i\tIgnore warnings.\n" +
       "\t-q\tCheck files quietly.\n" +
-      "\t--after=<time>, --before=<time>, --author=<time>, --grep<time>\tCheck matched files. Implies -a.\n"
+      "\t--after=<time>, --before=<time>, --author=<time>, --grep<time>\tCheck matched files. Implies -a.\n",
   );
   exit(0);
 }
 let FileLog = await getChangedFilesByLog(),
   FileLs = await getChangedFilesByDiff();
 let FileTotal: string = "";
-if (parg.after || parg.before || parg.author || parg.grep || parg.a) FileTotal += FileLog;
+if (parg.after || parg.before || parg.author || parg.grep || parg.a)
+  FileTotal += FileLog;
 else FileTotal += FileLs;
 checkFiles(parseFileList(FileTotal));
 //main end
@@ -48,17 +49,18 @@ function getChangedFilesByLog(): Promise<string> {
   if (parg.author) args += '--author="' + parg.author + '" ';
   if (parg.grep) args += '--grep="' + parg.grep + '" ';
   if (parg.f) args += parg.f + " ";
-  if (parg.d) console.log("[debug]Running: " + 'git log --format="" --name-only ' + args);
+  if (parg.d)
+    console.log("[debug]Running: " + 'git log --format="" --name-only ' + args);
   return new Promise((resolve, reject) => {
     cmd.exec(
       'git log --format="" --name-only ' + args,
       {
-        encoding: "utf-8"
+        encoding: "utf-8",
       },
       (error, stdout, stderr) => {
         if (error) reject(stderr);
         else resolve(stdout);
-      }
+      },
     );
   });
 }
@@ -67,17 +69,20 @@ function getChangedFilesByDiff(): Promise<string> {
   let args = "";
   if (parg.f) args = parg.f + " ";
   else args = "--cached " + runPath + "/../..";
-  if (parg.d) console.log("[debug]Running: " + "git ls-files " + "--exclude-standard " + args);
+  if (parg.d)
+    console.log(
+      "[debug]Running: " + "git ls-files " + "--exclude-standard " + args,
+    );
   return new Promise((resolve, reject) => {
     cmd.exec(
       "git diff --name-only " + args,
       {
-        encoding: "utf-8"
+        encoding: "utf-8",
       },
       (error, stdout, stderr) => {
         if (error) reject(stderr);
         else resolve(stdout);
-      }
+      },
     );
   });
 }
@@ -95,7 +100,7 @@ function parseFileList(fileBuf: string) {
     console.log("-----------------------");
     console.log("Detected files:");
     console.log("-----------------------");
-    fileList.forEach(file => console.log(file));
+    fileList.forEach((file) => console.log(file));
     console.log("----------------------------");
     console.log("Checking every changed file:");
     console.log("----------------------------");
@@ -110,10 +115,10 @@ async function checkFiles(fileList: string[]) {
     errList = errList.concat(await checkFile(file));
   }
   if (parg.i)
-    errList = errList.filter(val => {
+    errList = errList.filter((val) => {
       return val.search(/Warning/) === -1;
     });
-  if (errList[0]) printErr(errList), exit(1);
+  if (errList[0]) (printErr(errList), exit(1));
   exit(0);
 }
 
@@ -128,7 +133,8 @@ async function checkFile(file: string) {
 
   //Check file name valid
   let errList: string[] = new Array();
-  if (errFlag.fileNameInvalid && fileBase.search(/[^\w\-\+\.]/) !== -1) errList.push(fileNameInvalid(file));
+  if (errFlag.fileNameInvalid && fileBase.search(/[^\w\-\+\.]/) !== -1)
+    errList.push(fileNameInvalid(file));
   //if (fileName.search(/README.md|index.md/) !== -1) return errList;
 
   //Check if it is docs
@@ -148,7 +154,8 @@ async function checkFile(file: string) {
   //Check file name _
   if (errFlag.fileNameLine && fileName.search(/[\_\s]/) !== -1) {
     errList.push(fileNameLine(file));
-    if (parg.r) errList.push("[Info] Suggestion: " + fileBase.replaceAll(/[\_\s]/g, "-"));
+    if (parg.r)
+      errList.push("[Info] Suggestion: " + fileBase.replaceAll(/[\_\s]/g, "-"));
   }
 
   //Check if it is markdown
@@ -158,9 +165,13 @@ async function checkFile(file: string) {
 
   fileContent = fileContent.replaceAll(/\s```/g, "```"); //xuanxue
 
-  let fileTree = unified().use(remarkParse).use(remarkMath).use(remarkGfm).parse(fileContent);
+  let fileTree = unified()
+    .use(remarkParse)
+    .use(remarkMath)
+    .use(remarkGfm)
+    .parse(fileContent);
 
-  visit(fileTree, node => {
+  visit(fileTree, (node) => {
     if (node.type !== "image") return;
 
     //Pre-processing
@@ -177,25 +188,53 @@ async function checkFile(file: string) {
           ":" +
           node.position?.start.line +
           ":" +
-          node.position?.start.column
+          node.position?.start.column,
       );
 
     //Check if image resourse name contains file name
     if (errFlag.imgRefNameInvalid && imgSrc.search(RegExp(fileName)) === -1) {
-      errList.push(imgRefNameInvalid(imgSrc, file, node.position?.start.line, node.position?.start.column));
+      errList.push(
+        imgRefNameInvalid(
+          imgSrc,
+          file,
+          node.position?.start.line,
+          node.position?.start.column,
+        ),
+      );
 
-      if (parg.r) errList.push("[Info] Suggestion: " + fileName + "-" + pImg.base);
+      if (parg.r)
+        errList.push("[Info] Suggestion: " + fileName + "-" + pImg.base);
     }
 
     //Check if image resourse is from web
     if (errFlag.imgRefFromWeb && imgSrc.search(/\:\/\//) !== -1)
-      errList.push(imgRefFromWeb(imgSrc, file, node.position?.start.line, node.position?.start.column));
+      errList.push(
+        imgRefFromWeb(
+          imgSrc,
+          file,
+          node.position?.start.line,
+          node.position?.start.column,
+        ),
+      );
 
     //Check if image resourse format is recommended
-    if (errFlag.imgFormatNotRecommended && pImg.ext.toLowerCase().search(/gif/) !== -1) {
-      errList.push(imgFormatNotRecommended(imgSrc, file, node.position?.start.line, node.position?.start.column));
+    if (
+      errFlag.imgFormatNotRecommended &&
+      pImg.ext.toLowerCase().search(/gif/) !== -1
+    ) {
+      errList.push(
+        imgFormatNotRecommended(
+          imgSrc,
+          file,
+          node.position?.start.line,
+          node.position?.start.column,
+        ),
+      );
 
-      if (parg.r) errList.push("[Info] Suggestion: " + pImg.name + ".svg or " + pImg.name + ".apng");
+      if (parg.r)
+        errList.push(
+          "[Info] Suggestion: " + pImg.name + ".svg or " + pImg.name + ".apng",
+        );
     }
   });
 
@@ -216,12 +255,20 @@ async function checkFile(file: string) {
   fileTree = unified().use(remarkParse).parse(fileContent);
   */
 
-  visit(fileTree, node => {
+  visit(fileTree, (node) => {
     if (node.type === "heading") {
       if (errFlag.h1Used && node.depth === 1)
-        errList.push(h1Used(file, node.position?.start.line, node.position?.start.column));
+        errList.push(
+          h1Used(file, node.position?.start.line, node.position?.start.column),
+        );
       if (errFlag.tooDeepHeading && node.depth >= 5)
-        errList.push(tooDeepHeading(file, node.position?.start.line, node.position?.start.column));
+        errList.push(
+          tooDeepHeading(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
     }
 
     if (node.type === "text") {
@@ -230,13 +277,29 @@ async function checkFile(file: string) {
         node.value.search(/OI\sWIKI/) !== -1 &&
         node.value.search(/\*\*OI\sWIKI\*\*/) === -1
       ) {
-        errList.push(OIWIKINotBold(file, node.position?.start.line, node.position?.start.column));
+        errList.push(
+          OIWIKINotBold(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
 
         if (parg.r) errList.push("[Info] Suggestion: '**OI WIKI**'");
       }
 
-      if (errFlag.deleteLineUsed && node.value.search(/(\~\~)+/) !== -1 && node.value.search(/\$/) === -1) {
-        errList.push(deleteLineUsed(file, node.position?.start.line, node.position?.start.column));
+      if (
+        errFlag.deleteLineUsed &&
+        node.value.search(/(\~\~)+/) !== -1 &&
+        node.value.search(/\$/) === -1
+      ) {
+        errList.push(
+          deleteLineUsed(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
 
         if (parg.r) errList.push("[Info] Suggestion: remove '~~'");
       }
@@ -244,46 +307,104 @@ async function checkFile(file: string) {
 
     if (node.type === "math") {
       if (errFlag.emptysetUsed && node.value.search(/\\emptyset/) !== -1) {
-        errList.push(emptysetUsed(file, node.position?.start.line, node.position?.start.column));
+        errList.push(
+          emptysetUsed(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
 
         if (parg.r) errList.push("[Info] Suggestion: '\\varnothing'");
       }
 
-      if (errFlag.doubleEqualSigns && node.value.search(/\=\=/) !== -1 && node.value.search(/\=\=\=/) === -1) {
-        errList.push(doubleEqualSigns(file, node.position?.start.line, node.position?.start.column));
+      if (
+        errFlag.doubleEqualSigns &&
+        node.value.search(/\=\=/) !== -1 &&
+        node.value.search(/\=\=\=/) === -1
+      ) {
+        errList.push(
+          doubleEqualSigns(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
 
         if (parg.r) errList.push("[Info] Suggestion: use '=' instead");
       }
 
-      if (errFlag.tooManySquareBrackets && node.value.search(/[\w]+\[[\w\s\+\-\*\/]+\]\[[\w\s\+\-\*\/]+\]/) !== -1) {
-        errList.push(tooManySquareBrackets(file, node.position?.start.line, node.position?.start.column));
+      if (
+        errFlag.tooManySquareBrackets &&
+        node.value.search(/[\w]+\[[\w\s\+\-\*\/]+\]\[[\w\s\+\-\*\/]+\]/) !== -1
+      ) {
+        errList.push(
+          tooManySquareBrackets(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
 
-        if (parg.r) errList.push("[Info] Suggestion: 'f_{i,j,k}' or 'f(i,j,k)'");
+        if (parg.r)
+          errList.push("[Info] Suggestion: 'f_{i,j,k}' or 'f(i,j,k)'");
       }
 
       if (errFlag.threeDotsUsage && node.value.search(/\.\.\./) !== -1) {
-        errList.push(threeDotsUsage(file, node.position?.start.line, node.position?.start.column));
+        errList.push(
+          threeDotsUsage(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
 
-        if (parg.r) errList.push("[Info] Suggestion: '\\cdots', '\\ldots', '\\vdots', '\\ddots'");
+        if (parg.r)
+          errList.push(
+            "[Info] Suggestion: '\\cdots', '\\ldots', '\\vdots', '\\ddots'",
+          );
       }
 
       if (
         errFlag.useSplitAndEqnarray &&
-        (node.value.search(/\{split\}/) !== -1 || node.value.search(/\{eqnarray\}/) !== -1)
+        (node.value.search(/\{split\}/) !== -1 ||
+          node.value.search(/\{eqnarray\}/) !== -1)
       ) {
-        errList.push(useSplitAndEqnarray(file, node.position?.start.line, node.position?.start.column));
+        errList.push(
+          useSplitAndEqnarray(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
 
-        if (parg.r) errList.push("[Info] Suggestion: 'align', 'aligned' or 'equation'");
+        if (parg.r)
+          errList.push("[Info] Suggestion: 'align', 'aligned' or 'equation'");
       }
 
-      if (errFlag.unequalSignIllegal && (node.value.search(/\\lt/) !== -1 || node.value.search(/\\gt/) !== -1)) {
-        errList.push(unequalSignIllegal(file, node.position?.start.line, node.position?.start.column));
+      if (
+        errFlag.unequalSignIllegal &&
+        (node.value.search(/\\lt/) !== -1 || node.value.search(/\\gt/) !== -1)
+      ) {
+        errList.push(
+          unequalSignIllegal(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
 
         if (parg.r) errList.push("[Info] Suggestion: '<' or '>'");
       }
 
       if (errFlag.useChoose && node.value.search(/\\choose/) !== -1) {
-        errList.push(useChoose(file, node.position?.start.line, node.position?.start.column));
+        errList.push(
+          useChoose(
+            file,
+            node.position?.start.line,
+            node.position?.start.column,
+          ),
+        );
 
         if (parg.r) errList.push("[Info] Suggestion: '\\dbinom{n}{m}'");
       }
@@ -295,9 +416,22 @@ async function checkFile(file: string) {
           node.value.search(RegExp("\\b" + word + "\\b")) !== -1 &&
           node.value.search(RegExp("\\\\" + word + "\\b")) === -1
         ) {
-          errList.push(wordUsageIllegal(file, node.position?.start.line, node.position?.start.column));
+          errList.push(
+            wordUsageIllegal(
+              file,
+              node.position?.start.line,
+              node.position?.start.column,
+            ),
+          );
 
-          if (parg.r) errList.push("[Info] Suggestion: '\\" + word + "' or '\\operatorname{" + word + "}'");
+          if (parg.r)
+            errList.push(
+              "[Info] Suggestion: '\\" +
+                word +
+                "' or '\\operatorname{" +
+                word +
+                "}'",
+            );
         }
     }
   });
@@ -326,10 +460,19 @@ function fileNameNotLower(file: string) {
 }
 
 function fileNameLine(file: string) {
-  return "[Warning] [fileNameLine] File name " + file + " contains invalid spaces or underlines";
+  return (
+    "[Warning] [fileNameLine] File name " +
+    file +
+    " contains invalid spaces or underlines"
+  );
 }
 
-function imgRefNameInvalid(imgSrc: string, file: string, line: number | undefined, column: number | undefined) {
+function imgRefNameInvalid(
+  imgSrc: string,
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
   return (
     "[Warning] [imgRefNameInvalid] Image resourse " +
     imgSrc +
@@ -342,11 +485,30 @@ function imgRefNameInvalid(imgSrc: string, file: string, line: number | undefine
   );
 }
 
-function imgRefFromWeb(imgSrc: string, file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [imgRefFromWeb] Image resourse " + imgSrc + " is from web at " + file + ":" + line + ":" + column;
+function imgRefFromWeb(
+  imgSrc: string,
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [imgRefFromWeb] Image resourse " +
+    imgSrc +
+    " is from web at " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
 }
 
-function imgFormatNotRecommended(imgSrc: string, file: string, line: number | undefined, column: number | undefined) {
+function imgFormatNotRecommended(
+  imgSrc: string,
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
   return (
     "[Warning] [imgFormatNotRecommended] Image resourse " +
     imgSrc +
@@ -359,60 +521,190 @@ function imgFormatNotRecommended(imgSrc: string, file: string, line: number | un
   );
 }
 
-function h1Used(file: string, line: number | undefined, column: number | undefined) {
-  return "[Error] [h1Used] There is a 1st depth heading in file " + file + ":" + line + ":" + column;
-}
-
-function tooDeepHeading(file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [tooDeepHeading] The headings are too deep in file " + file + ":" + line + ":" + column;
-}
-
-function emptysetUsed(file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [emptysetUsed] \\emptyset is used at " + file + ":" + line + ":" + column;
-}
-
-function doubleEqualSigns(file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [doubleEqualSigns] Double equal signs at " + file + ":" + line + ":" + column;
-}
-
-function tooManySquareBrackets(file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [tooManySquareBrackets] Too many square brackets at " + file + ":" + line + ":" + column;
-}
-
-function threeDotsUsage(file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [threeDotsUsage] Three dots usage at " + file + ":" + line + ":" + column;
-}
-
-function useSplitAndEqnarray(file: string, line: number | undefined, column: number | undefined) {
+function h1Used(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
   return (
-    "[Error] [useSplitAndEqnarray] Split and eqnarray are forbidden, but found at " + file + ":" + line + ":" + column
+    "[Error] [h1Used] There is a 1st depth heading in file " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
   );
 }
 
-function unequalSignIllegal(file: string, line: number | undefined, column: number | undefined) {
-  return "[Error] [unequalSignIllegal] Illegal unequal sign at " + file + ":" + line + ":" + column;
+function tooDeepHeading(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [tooDeepHeading] The headings are too deep in file " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
 }
 
-function useChoose(file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [useChoose] \\choose is used at " + file + ":" + line + ":" + column;
+function emptysetUsed(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [emptysetUsed] \\emptyset is used at " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
 }
 
-function wordUsageIllegal(file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [wordUsageIllegal] An illegal word usage at " + file + ":" + line + ":" + column;
+function doubleEqualSigns(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [doubleEqualSigns] Double equal signs at " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
 }
 
-function OIWIKINotBold(file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [OIWIKINotBold] 'OI WIKI' is not bold in file " + file + ":" + line + ":" + column;
+function tooManySquareBrackets(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [tooManySquareBrackets] Too many square brackets at " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
 }
 
-function deleteLineUsed(file: string, line: number | undefined, column: number | undefined) {
-  return "[Warning] [deleteLineUsed] Delete line is used in file " + file + ":" + line + ":" + column;
+function threeDotsUsage(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [threeDotsUsage] Three dots usage at " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
+}
+
+function useSplitAndEqnarray(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Error] [useSplitAndEqnarray] Split and eqnarray are forbidden, but found at " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
+}
+
+function unequalSignIllegal(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Error] [unequalSignIllegal] Illegal unequal sign at " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
+}
+
+function useChoose(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [useChoose] \\choose is used at " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
+}
+
+function wordUsageIllegal(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [wordUsageIllegal] An illegal word usage at " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
+}
+
+function OIWIKINotBold(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [OIWIKINotBold] 'OI WIKI' is not bold in file " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
+}
+
+function deleteLineUsed(
+  file: string,
+  line: number | undefined,
+  column: number | undefined,
+) {
+  return (
+    "[Warning] [deleteLineUsed] Delete line is used in file " +
+    file +
+    ":" +
+    line +
+    ":" +
+    column
+  );
 }
 
 function printErr(errList: string[]) {
   colors.green;
   if (!parg.s && !parg.r) errList.sort();
-  errList.forEach(err => {
+  errList.forEach((err) => {
     if (err.search(/Warning/) !== -1) console.log(err.yellow);
     else if (err.search(/Error/) !== -1) console.log(err.red);
     else console.log(err);
